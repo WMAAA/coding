@@ -1,4 +1,44 @@
+# 万能输入
+
+无符号
+
+```
+    vector<vector<int>> arr;
+    string input;
+    while(getline(cin, input)){
+        if(input.size() > 0){
+            stringstream ss(input);
+            int num;
+            vector<int> a;
+            while(ss >> num){
+                a.push_back(num);
+            }
+            arr.push_back(a);
+        }
+    }
+```
+
+有符号
+
+```
+    vector<vector<int>> res;
+    string input;
+    char *tok;
+    while(getline(cin, input)){
+        if(input.size() > 0){
+            vector<int> a;
+            tok = strtok((char*)input.c_str(), " ,[]");
+            while(tok != NULL){
+                a.push_back(stoi(tok));
+                tok = strtok(NULL, " ,[]"); // 继续分割上一次的字符
+            }
+            res.push_back(a);
+        }
+    }
+```
+
 # coding
+
 > 只说思路，不进行编码
 
 #  栈与队列

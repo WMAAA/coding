@@ -27,6 +27,17 @@ for(int i=0; i<n; i++){
         cin>>grid[i][j];
     }
 }
+
+邻接表的输入
+    int n, m, s, t;
+    cin >> n >> m;
+
+    vector<list<int>> graph(n + 1);
+    while (m--) {
+        cin >> s >> t;
+        graph[s].push_back(t);
+
+    }
 ```
 
 有符号
@@ -307,6 +318,11 @@ for(int i=0; i<n; i++){
          - > 因为，只是newWord的话，不记录进visitMap中。
 
 12. 有向图的完全可达性
+
+    > 有向图搜索全路径，只能用dfs或bfs
+    >
+    > 没有回溯是因为，本题不需要路径，只需要查看能否到达所有节点
+    > 如何表示能否到达，用一个visited数组
 
 13. 岛屿的周长
 

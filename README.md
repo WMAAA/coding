@@ -66,13 +66,58 @@ for(int i=0; i<n; i++){
 # 数组
 
 1. 基础
+
 2. 二分查找：注意区间，我就写成左闭右闭，防止溢出，mid形式 `int middle = left + ((right - left) / 2);`，更新左右时，**注意区间**
+
 3. 移除元素：双指针法，直接返回`slowIndex`
+
 4. 有序数组的平方：
    - 暴力解法：直接每个元素平方后，`sort`排序，返回A
    - 双指针法：for循环不进行更新操作，在里面判断，k一直减减，根据情况判断是更新i还是更新j
+   
 5. 长度最小的子数组：
-   - 暴力：两个for循环，外层i从0，`内层`j从i，判断条件：求和大于目标，判断是否更新最小长度。
+   - 暴力：两个for循环，外层i从0，`内层`j从i，判断条件：求和大于目标，判断是否更新最小长度。**若条件成立的话，就直接 `break` 内层for、**
+   
+     ```
+     return result == INT32_MAX ? 0 : result;
+     ```
+   
+   - 滑动窗口法
+   
+     - 窗口的起始位置如何移动：如果当前窗口的值大于等于s了，窗口就要向前移动了（也就是该缩小了）。
+   
+     - 窗口的结束位置如何移动：窗口的结束位置就是遍历数组的指针，也就是for循环里的索引。
+   
+     - 解题的关键在于 窗口的起始位置如何移动
+   
+       > 注意看while里的条件，和，while内的`sum-=nums[i++]`
+   
+   - ```
+     class Solution{
+     public:
+         int minSubArrayLen(int s, vector<int>& nums){
+             int result = INT32_MAX;
+             int sum = 0;
+             int subLength = 0;
+             int i =0;
+             for(int j=0; j<nums.size(); j++){
+                 sum+=nums[j];
+                 while(sum >= s){
+                     subLength = j-i+1;
+     
+                     result = subLength < result ? subLength : result;
+         
+                     sum -= nums[i];
+                     i++;
+                 }
+             }
+             return result == INT32_MAX ? 0:result;
+         }
+     };
+     ```
+   
+     
+   
    - 
 
 # 栈与队列
@@ -364,4 +409,44 @@ for(int i=0; i<n; i++){
 
     主要是路径压缩步骤，判断是否没有father了(所以这里初始化时是初始化为 father[i] = i)
 
-16. 
+16. 冗余连接
+
+    > 跟基础并查集思路一样，判断有没有同环，没有的话就join
+    > 因为是从前向后遍历，题目是加入一条边变成环，所以这样遍历到 最后就是冗余
+
+17. 冗余连接二
+
+    > 有向图变有向树，只有一个根节点，只删除一个边，删最后的那个边
+
+    - 记录节点的入度
+
+      ```
+          int s, t;
+          vector<vector<int>> edges;
+          cin >> n;
+          vector<int> inDegree(n + 1, 0); // 记录节点入度
+          for (int i = 0; i < n; i++) {
+              cin >> s >> t;
+              inDegree[t]++;			// 主要是这一行，t不相同时，加的也不同
+              edges.push_back({s, t});// 将每个边加入
+          }
+      ```
+
+    - 好好想想以下两种情况的不同
+
+      - `isTreeAfterRemoveEdge()` 判断删一个边之后是不是有向树
+      - `getRemoveEdge()`确定图中一定有了有向环，那么要找到需要删除的那条边
+
+    - 先执行入度为2的两种情况，然后顺序这运行`getRemoveEdge()`，将边的两端点加入并查集，如果已有，则说明出现了环。
+
+18. 最小生成树prim
+
+    > prim三部曲
+    >
+    > - 第一步，选距离生成树最近节点
+    > - 第二步，最近节点加入生成树
+    > - 第三步，更新非生成树节点到生成树的距离（即更新minDist数组）
+    >
+    > **minDist数组用来记录每一个节点距离最小生成树的最近距离**
+
+19. 

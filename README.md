@@ -116,9 +116,24 @@ for(int i=0; i<n; i++){
      };
      ```
    
-     
-   
-   - 
+
+## 区间和
+
+暴力解法，先往`vector<int>`中塞值，然后`while(cin>>a>>b)`，遍历求和即可，但是可能超时
+
+**前缀和 在涉及计算区间和的问题时非常有用**！
+
+C++ 代码 面对大量数据 读取 输出操作，最好用scanf 和 printf，耗时会小很多
+
+`while (~scanf("%d%d", &a, &b))`
+
+当 `scanf` 返回值不等于 `EOF`（即 `-1`）时，循环继续，更直观的写法
+
+```
+while (scanf("%d%d", &a, &b) != EOF)
+```
+
+`printf("%d\n", sum);`
 
 # 栈与队列
 
@@ -151,36 +166,176 @@ for(int i=0; i<n; i++){
 
 # 二叉树
 
-1. 基础
+## 基础
 
-2. 递归遍历
+二叉树的定义
 
-3. 统一迭代法
+```
+struct TreeNode
+{
+	int val;
+	TreeNode *left;
+	TreeNode *right;
+	TreeNode(int x) : val(x), left(NULL), right(NULL);
+};
+```
 
-4. 层序遍历
+## 递归遍历
 
-5. 翻转二叉树
+```
+class Solution {
+public:
+    void traversal(TreeNode* cur, vector<int>& vec) {
+        if (cur == NULL) return;
+        vec.push_back(cur->val);    // 中
+        traversal(cur->left, vec);  // 左
+        traversal(cur->right, vec); // 右
+    }
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> result;
+        traversal(root, result);
+        return result;
+    }
+};
+```
 
-6. 二叉树周末总结
+## 统一迭代法
 
-7. 对称二叉树
+**处理的节点放入栈之后，紧接着放入一个空指针作为标记**
 
-8. 二叉树的最大深度
+注意出栈的顺序，比如前序遍历，就是判断
 
-9. 二叉树的最小深度
+```
+			if(node != NULL){
+				st.pop();
+				if(node->right) st.push(node->right);
+				if(node->left) st.push(node->left);
+				st.push(node);
+				st.push(NULL);
+```
 
-10. 完全二叉树的节点个数
+## 层序遍历
 
-11. 平衡二叉树
+```
+vector<vector<int>> levelOrder(TreeNode* root){
+	queue<TreeNode*> que;
+	if(root != NULL) que.push(root);
+	vector<vector<int>> result;
+	while(!que.empty()){
+		int size = que.size();
+		vector<int> vec;
+		for(int i = 0; i<size; i++){
+			TreeNode* node = que.front();
+			que.pop();
+			vec.push_back(node->val);
+			if(node->left) que.push(node->left);
+			if(node->right) que.push(node->right);
+		}
+		result.push_back(vec);
+	}
+	return result;
+}
+```
 
-    > 求深度适合用前序遍历，求高度适合用后序遍历
 
-12. 二叉树的所有路径
 
-    > - 使用`vector`结构来记录路径，方便来做回溯，再将`vector`结构的`path`转换为`string`格式
-    > - 回溯要和递归永远在一起，世界上最遥远的距离是你在花括号里，而我在花括号外
 
-13. 二叉树周末总结
+
+1. 翻转二叉树
+
+2. 二叉树周末总结
+
+## 对称二叉树
+
+> 注意，传入参数或者存入队列的节点的顺序。
+
+递归
+
+队列
+
+栈
+
+## 二叉树的最大深度
+
+**递归法，后序遍历**
+
+```
+class Solution {
+public:
+    int getdepth(TreeNode* node){
+        if(node == NULL) return 0;
+        int leftdepth = getdepth(node->left);
+        int rightdepth = getdepth(node->right);
+        int depth = 1+max(leftdepth, rightdepth);
+        return depth;
+    }
+    int maxDepth(TreeNode* root) {
+        return getdepth(root);
+    }
+};
+```
+
+**迭代法**
+
+```
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (root == NULL) return 0;
+        int depth = 0;
+        queue<TreeNode*> que;
+        que.push(root);
+        while(!que.empty()) {
+            int size = que.size();
+            depth++; // 记录深度
+            for (int i = 0; i < size; i++) {
+                TreeNode* node = que.front();
+                que.pop();
+                if (node->left) que.push(node->left);
+                if (node->right) que.push(node->right);
+            }
+        }
+        return depth;
+    }
+};
+```
+
+n叉树的
+
+```
+            for (int i = 0; i < size; i++) {
+                Node* node = que.front();
+                que.pop();
+                for (int j = 0; j < node->children.size(); j++) {
+                    if (node->children[j]) que.push(node->children[j]);
+                }
+            }
+```
+
+
+
+
+
+
+
+
+
+
+
+1. 二叉树的最小深度
+
+2. 完全二叉树的节点个数
+
+3. 平衡二叉树
+
+   > 求深度适合用前序遍历，求高度适合用后序遍历
+
+4. 二叉树的所有路径
+
+   > - 使用`vector`结构来记录路径，方便来做回溯，再将`vector`结构的`path`转换为`string`格式
+   > - 回溯要和递归永远在一起，世界上最遥远的距离是你在花括号里，而我在花括号外
+
+5. 二叉树周末总结
 
 # 回溯算法
 
@@ -308,70 +463,110 @@ for(int i=0; i<n; i++){
      - 深度优先搜索dfs
      - 广度优先搜索bfs
 
-2. dfs理论基础
 
-3. 所有可达路径
+## dfs理论基础
 
-   
+dfs代码框架
 
-4. bfs理论基础
+```
+void dfs(参数) {
+    if (终止条件) {
+        存放结果;
+        return;
+    }
 
-5. 岛屿数量，dfs
+    for (选择：本节点所连接的其他节点) {
+        处理节点;
+        dfs(图，选择的节点); // 递归
+        回溯，撤销处理结果
+    }
+}
+```
 
-6. 岛屿数量， bfs
+注意处理完后的撤销。
 
-7. 岛屿的最大面积
+## 所有可达路径
 
-8. 沉没孤岛
+【题目描述】
 
-9. 水流问题。
+给定一个有 n 个节点的有向无环图，节点编号从 1 到 n。请编写一个程序，找出并返回所有从节点 1 到节点 n 的路径。每条路径应以节点编号的列表形式表示。
+
+【输入描述】
+
+第一行包含两个整数 N，M，表示图中拥有 N 个节点，M 条边
+
+后续 M 行，每行包含两个整数 s 和 t，表示图中的 s 节点与 t 节点中有一条路径
+
+【输出描述】
+
+输出所有的可达路径，路径中所有节点的后面跟一个空格，每条路径独占一行，存在多条路径，路径输出的顺序可任意。
+
+如果不存在任何一条路径，则输出 -1。
+
+注意输出的序列中，最后一个节点后面没有空格！ 例如正确的答案是 `1 3 5`,而不是 `1 3 5`， 5后面没有空格！
+
+
+
+
+
+1. bfs理论基础
+
+2. 岛屿数量，dfs
+
+3. 岛屿数量， bfs
+
+4. 岛屿的最大面积
+
+5. 沉没孤岛
+
+6. 水流问题。
 
    - 暴力解法：遍历每个点，这样，每个点都深搜，然后，判断能不能同时到达左右边界。
    - 逆流而上，	然后记录  `上下` 边界开始`dfs`得到的标记，`左右`边界开始`dfs`得到的标记，然后判断两标记是否能同时访问到。
 
-10. 建造最大工岛
+7. 建造最大工岛
 
-    - 暴力解法：遍历地图尝试将每一个0改为1，然后去搜索地图中的最大岛屿面积
-    - 用深度搜索。
-      1. 遍历地图，找每个岛屿的面积，并做编号记录，更新每个岛屿的编号，`unordered_map`，`key`是岛屿编号，`value`是岛屿面积
-      
-         > unordered_map中
-         >
-         > mark标记时，从2开始记录的，，作为地图的标号。后面根据这个，可以从无序map中取相同类型的数量，还可以从无序set中添加唯一的标识、
-      2. 遍历每个海水，，，，向四个方向，，，，
-         - 每次遍历海水时，会把`VisitdGrid`清零。
-         - 用`unordered_set`存访问过的岛屿的编号
+   - 暴力解法：遍历地图尝试将每一个0改为1，然后去搜索地图中的最大岛屿面积
+   - 用深度搜索。
+     1. 遍历地图，找每个岛屿的面积，并做编号记录，更新每个岛屿的编号，`unordered_map`，`key`是岛屿编号，`value`是岛屿面积
+     
+        > unordered_map中
+        >
+        > mark标记时，从2开始记录的，，作为地图的标号。后面根据这个，可以从无序map中取相同类型的数量，还可以从无序set中添加唯一的标识、
+     2. 遍历每个海水，，，，向四个方向，，，，
+        - 每次遍历海水时，会把`VisitdGrid`清零。
+        - 用`unordered_set`存访问过的岛屿的编号
 
-11. 字符串接龙
+8. 字符串接龙
 
-    - 无向图求最短路径，用BFS最合适，找的的直接是最短路径
+   - 无向图求最短路径，用BFS最合适，找的的直接是最短路径
 
-    - 需要注意的点
+   - 需要注意的点
 
-      - 无向图，需要用标记位，标记着节点是否走过，否则死循环
+     - 无向图，需要用标记位，标记着节点是否走过，否则死循环
 
-      - 使用set来检查字符串是否出现在字符串集合里更快一些
+     - 使用set来检查字符串是否出现在字符串集合里更快一些
 
-    - 思路
+   - 思路
 
-      1. 只要队列不为空，就弹出第一个元素，然后
+     1. 只要队列不为空，就弹出第一个元素，然后
 
-      2. for循环，挨个替换每个字母，`newWord[i] = j + 'a';`
+     2. for循环，挨个替换每个字母，`newWord[i] = j + 'a';`
 
-         - if找到endStr，return
+        - if找到endStr，return
 
-         - if符串集合里出现了newWord，并且newWord没有被访问过
+        - if符串集合里出现了newWord，并且newWord没有被访问过
 
-         - > 因为，只是newWord的话，不记录进visitMap中。
+        - > 因为，只是newWord的话，不记录进visitMap中。
 
-12. 有向图的完全可达性
+9. 有向图的完全可达性
 
-    > 有向图搜索全路径，只能用dfs或bfs
-    >
-    > 没有回溯是因为，本题不需要路径，只需要查看能否到达所有节点
-    > 如何表示能否到达，用一个visited数组
+   > 有向图搜索全路径，只能用dfs或bfs
+   >
+   > 没有回溯是因为，本题不需要路径，只需要查看能否到达所有节点
+   > 如何表示能否到达，用一个visited数组
 
-13. 岛屿的周长
+10. 岛屿的周长
 
     > 本题都没有用到dfs或bfs，就是一个被海水围住的岛屿，只需要遍历每个位置，
     >
@@ -381,7 +576,7 @@ for(int i=0; i<n; i++){
     > - 判断x,y，海水。
     > - 则周长加一
 
-14. 并查集理论基础
+11. 并查集理论基础
 
     - 基本功能
 
@@ -399,7 +594,7 @@ for(int i=0; i<n; i++){
 
       
 
-15. 寻找存在的路径
+12. 寻找存在的路径
 
     > 并查集的三个基本功能：
     >
@@ -409,12 +604,12 @@ for(int i=0; i<n; i++){
 
     主要是路径压缩步骤，判断是否没有father了(所以这里初始化时是初始化为 father[i] = i)
 
-16. 冗余连接
+13. 冗余连接
 
     > 跟基础并查集思路一样，判断有没有同环，没有的话就join
     > 因为是从前向后遍历，题目是加入一条边变成环，所以这样遍历到 最后就是冗余
 
-17. 冗余连接二
+14. 冗余连接二
 
     > 有向图变有向树，只有一个根节点，只删除一个边，删最后的那个边
 
@@ -469,8 +664,74 @@ for(int i=0; i<n; i++){
        }
    ```
 
-3. 循环n-1次，将剩下n-1个顶点加入最小生成树。
+3. 循环n-1次，因为只需要构建n-1个边就行啦
 
-   - 选取要加入的节点
-   - 标记此节点为最小生成树节点
-   - 更新非生成树节点到生成树的距离
+   - 每次开头吧`minVal=INT_MAX`，为了比较与他相连的最小的，选择没在树中，距离最小的。
+
+## dijkstra朴素版
+
+最短路是图论中的经典问题即：给出一个有向图，一个起点，一个终点，问起点到终点的最短路径。
+
+三部曲
+
+1. 第一步，选源点到哪个节点近且该节点未被访问过
+2. 第二步，该最近节点被标记访问过
+3. 第三步，更新非访问节点到源点的距离（即更新minDist数组）
+
+**minDist数组 用来记录 每一个节点距离源点的最小距离**。
+
+## dijkstra堆优化版
+
+邻接表用 数组+链表 来表示
+
+在`vector<list<int>> grid(n + 1);` 中 就不能使用int了，而是需要一个键值对 来存两个数字，一个数表示节点，一个数表示 指向该节点的这条边的权值。
+
+```
+vector<list<pair<int,int>>> grid(n + 1);
+```
+
+但是代码可读性差，所以定义一个类取代`pair<int, int>`
+
+要选择距离源点近的节点（即：该边的权值最小），所以 我们需要一个 小顶堆 来帮我们对边的权值排序，**每次从小顶堆堆顶 取边就是权值最小的边**。
+
+```
+// 小顶堆
+class mycomparison {
+public:
+    bool operator()(const pair<int, int>& lhs, const pair<int, int>& rhs) {
+        return lhs.second > rhs.second;
+    }
+};
+// 优先队列中存放 pair<节点编号，源点到该节点的权值> 
+priority_queue<pair<int, int>, vector<pair<int, int>>, mycomparison> pq;
+```
+
+# Floyd算法
+
+经典的多源最短路问题
+
+**Floyd 算法对边的权值正负没有要求，都可以处理**。
+
+Floyd算法核心思想是动态规划
+
+**动规五部曲：**
+
+- 确定dp数组（dp table）以及下标的含义
+
+  - grid[i] [j] [k] = m，表示 **节点i 到 节点j 以[1...k] 集合中的一个节点为中间节点的最短距离为m**
+
+- 确定递推公式
+
+  ```
+  grid[i][j][k] = min(grid[i][k][k - 1] + grid[k][j][k - 1]， grid[i][j][k - 1])
+  ```
+
+- dp数组如何初始化
+
+  - 三维数组初始化
+
+- 确定遍历顺序
+
+  - 想象三维数组遍历顺序，可以得到谁在最外层
+
+- 举例推导dp数组

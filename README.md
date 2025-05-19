@@ -394,25 +394,168 @@ n叉树的
 
 # **动态规划**
 
-1. 动规是由前一个状态推导出来的，而贪心是局部直接选最优的，对于刷题来说就够用了。
+> 法典
+>
+> 1. 确定dp数组（dp table）以及下标的含义
+> 2. 确定递推公式
+> 3. dp数组如何初始化
+> 4. 确定遍历顺序
+> 5. 举例推导dp数组
 
-   > 1. 确定dp数组（dp table）以及下标的含义
-   > 2. 确定递推公式
-   > 3. dp数组如何初始化
-   > 4. 确定遍历顺序
-   > 5. 举例推导dp数组
+## 斐波那契数
 
-2. 斐波那契数：人都把上面5个条件都写出来了，你直接按着写就行了，这还不行？
+[力扣题目链接(opens new window)](https://leetcode.cn/problems/fibonacci-number/)
 
-3. 爬楼梯： 你站到倒数一阶，只有一种走法，你站在倒数第二阶，除了上面那种走法，你还有另外一个选择，那就是直接越过。
+斐波那契数，通常用 F(n) 表示，形成的序列称为 斐波那契数列 。该数列由 0 和 1 开始，后面的每一项数字都是前面两项数字的和。也就是： F(0) = 0，F(1) = 1 F(n) = F(n - 1) + F(n - 2)，其中 n > 1 给你n ，请计算 F(n) 。
 
-   - `扩展没看`
+```cpp
+class Solution {
+public:
+    int fib(int N) {
+        if (N <= 1) return N;
+        vector<int> dp(N + 1);
+        dp[0] = 0;
+        dp[1] = 1;
+        for (int i = 2; i <= N; i++) {
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[N];
+    }
+};
+```
 
-4. 使用最小花费爬楼梯
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
 
-5. 动归周总结
+当然可以发现，我们只需要维护两个数值就可以了，不需要记录整个序列。
 
-6. 背包理论基础一
+代码如下：
+
+```cpp
+class Solution {
+public:
+    int fib(int N) {
+        if (N <= 1) return N;
+        int dp[2];
+        dp[0] = 0;
+        dp[1] = 1;
+        for (int i = 2; i <= N; i++) {
+            int sum = dp[0] + dp[1];
+            dp[0] = dp[1];
+            dp[1] = sum;
+        }
+        return dp[1];
+    }
+};
+```
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+## 爬楼梯
+
+[力扣题目链接(opens new window)](https://leetcode.cn/problems/climbing-stairs/)
+
+假设你正在爬楼梯。需要 n 阶你才能到达楼顶。
+
+每次你可以爬 1 或 2 个台阶。你有多少种不同的方法可以爬到楼顶呢？
+
+注意：给定 n 是一个正整数。
+
+示例 1：
+
+- 输入： 2
+- 输出： 2
+- 解释： 有两种方法可以爬到楼顶。
+  - 1 阶 + 1 阶
+  - 2 阶
+
+示例 2：
+
+- 输入： 3
+- 输出： 3
+- 解释： 有三种方法可以爬到楼顶。
+  - 1 阶 + 1 阶 + 1 阶
+  - 1 阶 + 2 阶
+  - 2 阶 + 1 阶
+
+```
+// 版本一
+class Solution {
+public:
+    int climbStairs(int n) {
+        if (n <= 1) return n; // 因为下面直接对dp[2]操作了，防止空指针
+        vector<int> dp(n + 1);
+        dp[1] = 1;
+        dp[2] = 2;
+        for (int i = 3; i <= n; i++) { // 注意i是从3开始的
+            dp[i] = dp[i - 1] + dp[i - 2];
+        }
+        return dp[n];
+    }
+};
+```
+
+时间复杂度：O(n)
+空间复杂度：O(n)
+
+## 使用最小花费爬楼梯
+
+给你一个整数数组 cost ，其中 cost[i] 是从楼梯第 i 个台阶向上爬需要支付的费用。一旦你支付此费用，即可选择向上爬一个或者两个台阶。
+
+你可以选择从下标为 0 或下标为 1 的台阶开始爬楼梯。
+
+请你计算并返回达到楼梯顶部的最低花费。
+
+
+
+```cpp
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        vector<int> dp(cost.size() + 1);
+        dp[0] = 0; // 默认第一步都是不花费体力的
+        dp[1] = 0;
+        for (int i = 2; i <= cost.size(); i++) {
+            dp[i] = min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2]);
+        }
+        return dp[cost.size()];
+    }
+};
+```
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+还可以优化空间复杂度，因为dp[i]就是由前两位推出来的，那么也不用dp数组了，C++代码如下：
+
+```cpp
+// 版本二
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        int dp0 = 0;
+        int dp1 = 0;
+        for (int i = 2; i <= cost.size(); i++) {
+            int dpi = min(dp1 + cost[i - 1], dp0 + cost[i - 2]);
+            dp0 = dp1; // 记录一下前两位
+            dp1 = dpi;
+        }
+        return dp1;
+    }
+};
+```
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+
+
+
+
+1. 动归周总结
+
+2. 背包理论基础一
 
    > **`dp[i][j]`表示从下表为[0-i]的物品里任意取，放进容量为j的背包，价值总和最大是多少。**
 
@@ -426,15 +569,15 @@ n叉树的
      - 物品大，就用同一列上方元素进行赋值，就是同重量，装轻的
      - 背包大，就比较只装轻的，或找那个剩余容量对应的上一行的`value`,求`max`
 
-7. 背包理论基础二
+3. 背包理论基础二
 
    - 
 
-8. 分割等和子集
+4. 分割等和子集
 
-9. 最后一块石头的重量II
+5. 最后一块石头的重量II
 
-10. 动归周总结
+6. 动归周总结
 
 
 
@@ -505,17 +648,289 @@ void dfs(参数) {
 
 注意输出的序列中，最后一个节点后面没有空格！ 例如正确的答案是 `1 3 5`,而不是 `1 3 5`， 5后面没有空格！
 
+## bfs理论基础
+
+```
+int dir[4][2] = {0, 1, 1, 0, -1, 0, 0, -1}; // 表示四个方向
+// grid 是地图，也就是一个二维数组
+// visited标记访问过的节点，不要重复访问
+// x,y 表示开始搜索节点的下标
+void bfs(vector<vector<char>>& grid, vector<vector<bool>>& visited, int x, int y) {
+    queue<pair<int, int>> que; // 定义队列
+    que.push({x, y}); // 起始节点加入队列
+    visited[x][y] = true; // 只要加入队列，立刻标记为访问过的节点
+    while(!que.empty()) { // 开始遍历队列里的元素
+        pair<int ,int> cur = que.front(); que.pop(); // 从队列取元素
+        int curx = cur.first;
+        int cury = cur.second; // 当前节点坐标
+        for (int i = 0; i < 4; i++) { // 开始想当前节点的四个方向左右上下去遍历
+            int nextx = curx + dir[i][0];
+            int nexty = cury + dir[i][1]; // 获取周边四个方向的坐标
+            if (nextx < 0 || nextx >= grid.size() || nexty < 0 || nexty >= grid[0].size()) continue;  // 坐标越界了，直接跳过
+            if (!visited[nextx][nexty]) { // 如果节点没被访问过
+                que.push({nextx, nexty});  // 队列添加该节点为下一轮要遍历的节点
+                visited[nextx][nexty] = true; // 只要加入队列立刻标记，避免重复访问
+            }
+        }
+    }
+
+}
+```
+
+## 岛屿数量
+
+题目描述：
+
+给定一个由 1（陆地）和 0（水）组成的矩阵，你需要计算岛屿的数量。岛屿由水平方向或垂直方向上相邻的陆地连接而成，并且四周都是水域。你可以假设矩阵外均被水包围。
+
+输入描述：
+
+第一行包含两个整数 N, M，表示矩阵的行数和列数。
+
+后续 N 行，每行包含 M 个数字，数字为 1 或者 0。
+
+输出描述：
+
+输出一个整数，表示岛屿的数量。如果不存在岛屿，则输出 0。
+
+### dfs
+
+```
+// 版本一 
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int dir[4][2] = {0, 1, 1, 0, -1, 0, 0, -1}; // 四个方向
+void dfs(const vector<vector<int>>& grid, vector<vector<bool>>& visited, int x, int y) {
+    for (int i = 0; i < 4; i++) {
+        int nextx = x + dir[i][0];
+        int nexty = y + dir[i][1];
+        if (nextx < 0 || nextx >= grid.size() || nexty < 0 || nexty >= grid[0].size()) continue;  // 越界了，直接跳过
+        if (!visited[nextx][nexty] && grid[nextx][nexty] == 1) { // 没有访问过的 同时 是陆地的
+
+            visited[nextx][nexty] = true;
+            dfs(grid, visited, nextx, nexty);
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    vector<vector<int>> grid(n, vector<int>(m, 0));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> grid[i][j];
+        }
+    }
+
+    vector<vector<bool>> visited(n, vector<bool>(m, false));
+
+    int result = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (!visited[i][j] && grid[i][j] == 1) {
+                visited[i][j] = true;
+                result++; // 遇到没访问过的陆地，+1
+                dfs(grid, visited, i, j); // 将与其链接的陆地都标记上 true
+            }
+        }
+    }
+
+    cout << result << endl;
+}
+```
+
+### bfs
+
+```
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+int dir[4][2] = {0, 1, 1, 0, -1, 0, 0, -1}; // 四个方向
+void bfs(const vector<vector<int>>& grid, vector<vector<bool>>& visited, int x, int y) {
+    queue<pair<int, int>> que;
+    que.push({x, y});
+    visited[x][y] = true; // 只要加入队列，立刻标记
+    while(!que.empty()) {
+        pair<int ,int> cur = que.front(); que.pop();
+        int curx = cur.first;
+        int cury = cur.second;
+        for (int i = 0; i < 4; i++) {
+            int nextx = curx + dir[i][0];
+            int nexty = cury + dir[i][1];
+            if (nextx < 0 || nextx >= grid.size() || nexty < 0 || nexty >= grid[0].size()) continue;  // 越界了，直接跳过
+            if (!visited[nextx][nexty] && grid[nextx][nexty] == 1) {
+                que.push({nextx, nexty});
+                visited[nextx][nexty] = true; // 只要加入队列立刻标记
+            }
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    vector<vector<int>> grid(n, vector<int>(m, 0));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> grid[i][j];
+        }
+    }
+
+    vector<vector<bool>> visited(n, vector<bool>(m, false));
+
+    int result = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (!visited[i][j] && grid[i][j] == 1) {
+                result++; // 遇到没访问过的陆地，+1
+                bfs(grid, visited, i, j); // 将与其链接的陆地都标记上 true
+            }
+        }
+    }
 
 
+    cout << result << endl;
+}
+```
 
+## 孤岛的总面积
 
-1. bfs理论基础
+题目描述
 
-2. 岛屿数量，dfs
+给定一个由 1（陆地）和 0（水）组成的矩阵，岛屿指的是由水平或垂直方向上相邻的陆地单元格组成的区域，且完全被水域单元格包围。孤岛是那些位于矩阵内部、所有单元格都不接触边缘的岛屿。
 
-3. 岛屿数量， bfs
+现在你需要计算所有孤岛的总面积，岛屿面积的计算方式为组成岛屿的陆地的总数。
 
-4. 岛屿的最大面积
+输入描述
+
+第一行包含两个整数 N, M，表示矩阵的行数和列数。之后 N 行，每行包含 M 个数字，数字为 1 或者 0。
+
+输出描述
+
+输出一个整数，表示所有孤岛的总面积，如果不存在孤岛，则输出 0。
+
+### dfs
+
+```
+#include <iostream>
+#include <vector>
+using namespace std;
+int dir[4][2] = {-1, 0, 0, -1, 1, 0, 0, 1}; // 保存四个方向
+void dfs(vector<vector<int>>& grid, int x, int y) {
+    grid[x][y] = 0;
+    for (int i = 0; i < 4; i++) { // 向四个方向遍历
+        int nextx = x + dir[i][0];
+        int nexty = y + dir[i][1];
+        // 超过边界
+        if (nextx < 0 || nextx >= grid.size() || nexty < 0 || nexty >= grid[0].size()) continue;
+        // 不符合条件，不继续遍历
+        if (grid[nextx][nexty] == 0) continue;
+
+        dfs (grid, nextx, nexty);
+    }
+    return;
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    vector<vector<int>> grid(n, vector<int>(m, 0));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> grid[i][j];
+        }
+    }
+
+    // 从左侧边，和右侧边 向中间遍历
+    for (int i = 0; i < n; i++) {
+        if (grid[i][0] == 1) dfs(grid, i, 0);
+        if (grid[i][m - 1] == 1) dfs(grid, i, m - 1);
+    }
+    // 从上边和下边 向中间遍历
+    for (int j = 0; j < m; j++) {
+        if (grid[0][j] == 1) dfs(grid, 0, j);
+        if (grid[n - 1][j] == 1) dfs(grid, n - 1, j);
+    }
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (grid[i][j] == 1) count++;
+        }
+    }
+    cout << count << endl;
+}
+```
+
+### bfs
+
+```
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+int dir[4][2] = {0, 1, 1, 0, -1, 0, 0, -1}; // 四个方向
+void bfs(vector<vector<int>>& grid, int x, int y) {
+    queue<pair<int, int>> que;
+    que.push({x, y});
+    grid[x][y] = 0; // 只要加入队列，立刻标记
+    while(!que.empty()) {
+        pair<int ,int> cur = que.front(); que.pop();
+        int curx = cur.first;
+        int cury = cur.second;
+        for (int i = 0; i < 4; i++) {
+            int nextx = curx + dir[i][0];
+            int nexty = cury + dir[i][1];
+            if (nextx < 0 || nextx >= grid.size() || nexty < 0 || nexty >= grid[0].size()) continue;  // 越界了，直接跳过
+            if (grid[nextx][nexty] == 1) {
+                que.push({nextx, nexty});
+                grid[nextx][nexty] = 0; // 只要加入队列立刻标记
+            }
+        }
+    }
+}
+
+int main() {
+    int n, m;
+    cin >> n >> m;
+    vector<vector<int>> grid(n, vector<int>(m, 0));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> grid[i][j];
+        }
+    }
+    // 从左侧边，和右侧边 向中间遍历
+    for (int i = 0; i < n; i++) {
+        if (grid[i][0] == 1) bfs(grid, i, 0);
+        if (grid[i][m - 1] == 1) bfs(grid, i, m - 1);
+    }
+    // 从上边和下边 向中间遍历
+    for (int j = 0; j < m; j++) {
+        if (grid[0][j] == 1) bfs(grid, 0, j);
+        if (grid[n - 1][j] == 1) bfs(grid, n - 1, j);
+    }
+    int count = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            if (grid[i][j] == 1) count++;
+        }
+    }
+
+    cout << count << endl;
+}
+```
+
+1. 
+
+2. 
+
+3. 
+
+4. 
 
 5. 沉没孤岛
 
